@@ -133,16 +133,17 @@ void rainbow(int secondsPerCycle){ // goes through the rainbow
   }
 }
 
-void displayTime(String time){ // Format HH:MM, 12hr clock
+void displayTime(String time){ // Format "HH:MM PM"
+  bool PM = (time.substring(6,8) == "PM"); // Post meridiem boolean
   digitalWrite(PIN_LATCH, LOW);
   digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, SEVEN_SEGMENT[time.substr(4,5).toInt()]); // LSB digit of minute
-  digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, SEVEN_SEGMENT[time.substr(3,4).toInt()]); // MSB digit of minute
-  digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, SEVEN_SEGMENT[time.substr(1,2).toInt()]); // LSB digit of hour
-  digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, SEVEN_SEGMENT[time.substr(0,1).toInt()]); // MSB digit of hour
+  shiftOut(PIN_DATA, PIN_CLOCK, LSBFIRST, SEVEN_SEGMENT[time.substring(4,5).toInt()] & ~(PM ? 0x80 : 0x00)/*Set bit DP if PM is true (common anode)*/ ); // LSB digit of minute
+  //digitalWrite(PIN_CLOCK, LOW);
+  //shiftOut(PIN_DATA, PIN_CLOCK, LSBFIRST, SEVEN_SEGMENT[time.substring(3,4).toInt()]); // MSB digit of minute
+  //digitalWrite(PIN_CLOCK, LOW);
+  //shiftOut(PIN_DATA, PIN_CLOCK, LSBFIRST, SEVEN_SEGMENT[time.substring(1,2).toInt()]); // LSB digit of hour
+  //digitalWrite(PIN_CLOCK, LOW);
+  //shiftOut(PIN_DATA, PIN_CLOCK, LSBFIRST, SEVEN_SEGMENT[time.substring(0,1).toInt()]); // MSB digit of hour
   digitalWrite(PIN_LATCH, HIGH); // Move value to display register
 }
 
@@ -181,6 +182,10 @@ void connectToWifi() {
   if (!flag) {
     Serial.print("Could not connect to server: ");
     Serial.println(HOST);
+    for (int i=0; i<10; i++){ // Let user know that the device is having problems
+      setColourRGB(255,0,166, /*delayTime=*/500/*ms*/); //Pink
+      setColourRGB(255,213,0, /*delayTime=*/500/*ms*/); //Mustard
+    }
     Serial.println("Exiting...");
     ESP.reset();
   }
@@ -263,7 +268,16 @@ void setup() {
   pinMode(PIN_DATA, OUTPUT);
   pinMode(PIN_CLOCK, OUTPUT);
   pinMode(PIN_LATCH, OUTPUT);
-  
+  displayTime("00:00 PM"); delay(500);
+  displayTime("00:01 PM"); delay(500);
+  displayTime("00:02 PM"); delay(500);
+  displayTime("00:03 PM"); delay(500);
+  displayTime("00:04 PM"); delay(500);
+  displayTime("00:05 PM"); delay(500);
+  displayTime("00:06 PM"); delay(500);
+  displayTime("00:07 PM"); delay(500);
+  displayTime("00:08 PM"); delay(500);
+  displayTime("00:09 PM"); delay(500);
   rainbow(15); // startup colours
   setColourRGB(0,0,0, 0);
   getCalendar();
