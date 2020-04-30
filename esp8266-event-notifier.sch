@@ -2602,6 +2602,91 @@ type 0309, grid 2.5 mm</description>
 <rectangle x1="3.175" y1="-0.3048" x2="4.0386" y2="0.3048" layer="21"/>
 <rectangle x1="-4.0386" y1="-0.3048" x2="-3.175" y2="0.3048" layer="21"/>
 </package>
+<package name="DCJACK_2MM_PTH" urn="urn:adsk.eagle:footprint:6240083/1" library_version="2">
+<description>DJ Jack 2.0mm PTH Right-Angle</description>
+<wire x1="4.5" y1="14.2" x2="2.4" y2="14.2" width="0.2032" layer="21"/>
+<wire x1="-4.5" y1="3.3" x2="-4.5" y2="0" width="0.2032" layer="51"/>
+<wire x1="4.5" y1="0" x2="4.5" y2="3.3" width="0.2032" layer="51"/>
+<wire x1="4.5" y1="0" x2="-4.5" y2="0" width="0.2032" layer="51"/>
+<wire x1="4.5" y1="3.3" x2="4.5" y2="8.4" width="0.2032" layer="21"/>
+<wire x1="4.5" y1="14.2" x2="4.5" y2="13.1" width="0.2032" layer="21"/>
+<wire x1="-4.5" y1="3.3" x2="-4.5" y2="14.2" width="0.2032" layer="21"/>
+<wire x1="-4.5" y1="14.2" x2="-2.6" y2="14.2" width="0.2032" layer="21"/>
+<wire x1="-4.5" y1="3.3" x2="4.5" y2="3.3" width="0.2032" layer="21"/>
+<wire x1="-4.5" y1="3.3" x2="4.5" y2="3.3" width="0.2032" layer="51"/>
+<wire x1="-4.5" y1="3.3" x2="-4.5" y2="12.45" width="0.2032" layer="51"/>
+<wire x1="-4.5" y1="12.45" x2="-4.5" y2="14.2" width="0.2032" layer="51"/>
+<wire x1="4.5" y1="3.3" x2="4.5" y2="8.35" width="0.2032" layer="51"/>
+<wire x1="4.5" y1="8.35" x2="4.5" y2="8.4" width="0.2032" layer="51"/>
+<wire x1="-4.5" y1="14.2" x2="2.65" y2="14.2" width="0.2032" layer="51"/>
+<wire x1="4.5" y1="14.2" x2="2.65" y2="14.2" width="0.2032" layer="51"/>
+<wire x1="2.65" y1="14.2" x2="2.4" y2="14.2" width="0.2032" layer="51"/>
+<wire x1="4.5" y1="14.2" x2="4.5" y2="8.35" width="0.2032" layer="51"/>
+<wire x1="-4.5" y1="12.45" x2="4.4" y2="12.45" width="0.2032" layer="51"/>
+<pad name="PWR" x="0" y="13.6" drill="3.2"/>
+<pad name="GND" x="0" y="7.35" drill="2.8"/>
+<pad name="GNDBREAK" x="4.8" y="10.75" drill="2.8" rot="R90"/>
+<text x="-5.08" y="0" size="1.27" layer="25" rot="R90">&gt;NAME</text>
+<text x="6.35" y="0" size="1.27" layer="27" rot="R90">&gt;VALUE</text>
+<text x="-3.302" y="1.27" size="0.8128" layer="51">DC 2.0/2.1</text>
+</package>
+<package name="DCJACK_2MM_SMT" urn="urn:adsk.eagle:footprint:6240084/1" library_version="2">
+<description>2.0/2.1mm DC Jack - SMT
+&lt;p&gt;4UConnector: 03267&lt;/p&gt;
+&lt;p&gt;Note: Small tRestrict polygon's were added to the ground pads to improve solderability when this part is used in combination with a ground pour.  By default, Eagle will product four large bridges to the ground pour significantly increasing the heat distribution on the pads and preventing lead-free solder from reflowing in certain situations.  For more details, see: http://www.microbuilder.eu/Blog/09-12-14/Reducing_Thermals_for_Large_Pads_in_Eagle.aspx&lt;/p&gt;</description>
+<wire x1="-4" y1="4.5" x2="-5" y2="3.5" width="0.127" layer="51" curve="90"/>
+<wire x1="-5" y1="3.5" x2="-5" y2="-3.5" width="0.127" layer="51"/>
+<wire x1="-5" y1="-3.5" x2="-4" y2="-4.5" width="0.127" layer="51" curve="90"/>
+<wire x1="-4" y1="-4.5" x2="10.254" y2="-4.5" width="0.127" layer="51"/>
+<wire x1="10.254" y1="-4.5" x2="10.254" y2="-1.492" width="0.127" layer="51"/>
+<wire x1="10.254" y1="-1.492" x2="9" y2="-1.492" width="0.127" layer="51"/>
+<wire x1="9" y1="-1.492" x2="9" y2="4.5" width="0.127" layer="51"/>
+<wire x1="9" y1="4.5" x2="-4" y2="4.5" width="0.127" layer="51"/>
+<wire x1="-4" y1="4.5" x2="-5" y2="3.5" width="0.127" layer="21" curve="90"/>
+<wire x1="-5" y1="3.5" x2="-5" y2="-3.5" width="0.127" layer="21"/>
+<wire x1="-5" y1="-3.5" x2="-4" y2="-4.5" width="0.127" layer="21" curve="90"/>
+<wire x1="10.254" y1="-4.5" x2="10.254" y2="-1.492" width="0.127" layer="21"/>
+<wire x1="10.254" y1="-1.492" x2="9" y2="-1.492" width="0.127" layer="21"/>
+<wire x1="9" y1="-1.492" x2="9" y2="4.5" width="0.127" layer="21"/>
+<wire x1="-1.668" y1="4.5" x2="-4" y2="4.5" width="0.127" layer="21"/>
+<wire x1="4.682" y1="4.5" x2="1.588" y2="4.5" width="0.127" layer="21"/>
+<wire x1="9" y1="4.5" x2="7.938" y2="4.5" width="0.127" layer="21"/>
+<wire x1="-4" y1="-4.5" x2="-1.684" y2="-4.5" width="0.127" layer="21"/>
+<wire x1="1.588" y1="-4.5" x2="4.666" y2="-4.5" width="0.127" layer="21"/>
+<wire x1="7.938" y1="-4.5" x2="10.254" y2="-4.5" width="0.127" layer="21"/>
+<smd name="PWR1" x="0" y="5.5" dx="2.4" dy="2" layer="1"/>
+<smd name="PWR2" x="6.2" y="5.5" dx="2.4" dy="2" layer="1"/>
+<smd name="GNDBREAK" x="6.2" y="-5.5" dx="2.4" dy="2" layer="1"/>
+<smd name="GND" x="0" y="-5.5" dx="2.4" dy="2" layer="1"/>
+<text x="0.762" y="2.794" size="1.4224" layer="21" ratio="12" rot="R90">+</text>
+<text x="-1.016" y="-3.81" size="0.8128" layer="21">GND</text>
+<hole x="0" y="0" drill="1.6"/>
+<hole x="4.5" y="0" drill="1.8"/>
+<polygon width="0.0254" layer="41" spacing="0.254">
+<vertex x="1.27" y="-5.7404"/>
+<vertex x="1.27" y="-5.2578"/>
+<vertex x="1.2954" y="-5.2578"/>
+<vertex x="1.2954" y="-5.7404"/>
+</polygon>
+<polygon width="0.0254" layer="41" spacing="0.254">
+<vertex x="-0.254" y="-4.4196"/>
+<vertex x="0.2286" y="-4.4196"/>
+<vertex x="0.2286" y="-4.445"/>
+<vertex x="-0.254" y="-4.445"/>
+</polygon>
+<polygon width="0.0254" layer="41" spacing="0.254">
+<vertex x="4.9022" y="-5.7404"/>
+<vertex x="4.9022" y="-5.2578"/>
+<vertex x="4.9276" y="-5.2578"/>
+<vertex x="4.9276" y="-5.7404"/>
+</polygon>
+<polygon width="0.0254" layer="41" spacing="0.254">
+<vertex x="6.4262" y="-4.445"/>
+<vertex x="5.9436" y="-4.445"/>
+<vertex x="5.9436" y="-4.4196"/>
+<vertex x="6.4262" y="-4.4196"/>
+</polygon>
+</package>
 </packages>
 <packages3d>
 <package3d name="R0402" urn="urn:adsk.eagle:package:6240564/1" type="box" library_version="2">
@@ -3094,6 +3179,20 @@ type 0309, grid 2.5 mm</description>
 <packageinstance name="0207/9"/>
 </packageinstances>
 </package3d>
+<package3d name="DCJACK_2MM_PTH" urn="urn:adsk.eagle:package:6240729/1" type="box" library_version="2">
+<description>DJ Jack 2.0mm PTH Right-Angle</description>
+<packageinstances>
+<packageinstance name="DCJACK_2MM_PTH"/>
+</packageinstances>
+</package3d>
+<package3d name="DCJACK_2MM_SMT" urn="urn:adsk.eagle:package:6240730/1" type="box" library_version="2">
+<description>2.0/2.1mm DC Jack - SMT
+&lt;p&gt;4UConnector: 03267&lt;/p&gt;
+&lt;p&gt;Note: Small tRestrict polygon's were added to the ground pads to improve solderability when this part is used in combination with a ground pour.  By default, Eagle will product four large bridges to the ground pour significantly increasing the heat distribution on the pads and preventing lead-free solder from reflowing in certain situations.  For more details, see: http://www.microbuilder.eu/Blog/09-12-14/Reducing_Thermals_for_Large_Pads_in_Eagle.aspx&lt;/p&gt;</description>
+<packageinstances>
+<packageinstance name="DCJACK_2MM_SMT"/>
+</packageinstances>
+</package3d>
 </packages3d>
 <symbols>
 <symbol name="R-US" urn="urn:adsk.eagle:symbol:6239479/1" library_version="2">
@@ -3110,6 +3209,22 @@ type 0309, grid 2.5 mm</description>
 <text x="-3.81" y="-3.302" size="1.778" layer="96">&gt;VALUE</text>
 <pin name="2" x="5.08" y="0" visible="off" length="short" direction="pas" swaplevel="1" rot="R180"/>
 <pin name="1" x="-5.08" y="0" visible="off" length="short" direction="pas" swaplevel="1"/>
+</symbol>
+<symbol name="DCBARREL" urn="urn:adsk.eagle:symbol:6239549/1" library_version="2">
+<wire x1="0" y1="0" x2="0" y2="-2.54" width="0.1524" layer="94"/>
+<wire x1="0" y1="-2.54" x2="-1.27" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="-5.08" y1="-2.54" x2="-3.81" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="-3.81" y1="-2.54" x2="-2.54" y2="-1.27" width="0.254" layer="94"/>
+<wire x1="-2.54" y1="-1.27" x2="-1.27" y2="-2.54" width="0.254" layer="94"/>
+<wire x1="0" y1="3.175" x2="0" y2="1.905" width="0.254" layer="94"/>
+<wire x1="-4.445" y1="3.175" x2="-4.445" y2="1.905" width="0.254" layer="94" curve="180"/>
+<wire x1="0" y1="1.905" x2="-4.445" y2="1.905" width="0.254" layer="94"/>
+<wire x1="0" y1="3.175" x2="-4.445" y2="3.175" width="0.254" layer="94"/>
+<text x="-5.08" y="5.08" size="1.27" layer="95">&gt;NAME</text>
+<text x="-5.08" y="-5.08" size="1.27" layer="96">&gt;VALUE</text>
+<pin name="PWR" x="2.54" y="2.54" visible="pad" length="short" direction="pwr" rot="R180"/>
+<pin name="GNDBREAK" x="2.54" y="0" visible="pad" length="short" direction="pwr" rot="R180"/>
+<pin name="GND" x="2.54" y="-2.54" visible="pad" length="short" direction="pwr" rot="R180"/>
 </symbol>
 </symbols>
 <devicesets>
@@ -3973,6 +4088,41 @@ type 0309, grid 2.5 mm</description>
 </device>
 </devices>
 </deviceset>
+<deviceset name="DCBARREL" urn="urn:adsk.eagle:component:6241039/1" prefix="CN" uservalue="yes" library_version="2">
+<description>&lt;p&gt;&lt;b&gt;2.0mm DC Barrel Jack&lt;/b&gt;&lt;/p&gt;
+&lt;b&gt;DCJACK_2MM_PTH&lt;/b&gt; - Through Hole Jack (4UConnector: 05537)</description>
+<gates>
+<gate name="G$1" symbol="DCBARREL" x="0" y="0"/>
+</gates>
+<devices>
+<device name="PTH" package="DCJACK_2MM_PTH">
+<connects>
+<connect gate="G$1" pin="GND" pad="GND"/>
+<connect gate="G$1" pin="GNDBREAK" pad="GNDBREAK"/>
+<connect gate="G$1" pin="PWR" pad="PWR"/>
+</connects>
+<package3dinstances>
+<package3dinstance package3d_urn="urn:adsk.eagle:package:6240729/1"/>
+</package3dinstances>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="SMT" package="DCJACK_2MM_SMT">
+<connects>
+<connect gate="G$1" pin="GND" pad="GNDBREAK"/>
+<connect gate="G$1" pin="GNDBREAK" pad="GND"/>
+<connect gate="G$1" pin="PWR" pad="PWR1"/>
+</connects>
+<package3dinstances>
+<package3dinstance package3d_urn="urn:adsk.eagle:package:6240730/1"/>
+</package3dinstances>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
 </devicesets>
 </library>
 </libraries>
@@ -4069,6 +4219,7 @@ type 0309, grid 2.5 mm</description>
 <part name="R34" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="R-US_" device="R0805" package3d_urn="urn:adsk.eagle:package:6240566/1" value="330"/>
 <part name="R35" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="R-US_" device="R0805" package3d_urn="urn:adsk.eagle:package:6240566/1" value="330"/>
 <part name="R36" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="R-US_" device="R0805" package3d_urn="urn:adsk.eagle:package:6240566/1" value="330"/>
+<part name="CN1" library="adafruit" library_urn="urn:adsk.eagle:library:420" deviceset="DCBARREL" device="PTH" package3d_urn="urn:adsk.eagle:package:6240729/1" value="9V"/>
 </parts>
 <sheets>
 <sheet>
@@ -4123,7 +4274,7 @@ type 0309, grid 2.5 mm</description>
 <attribute name="VALUE" x="88.9" y="116.84" size="1.778" layer="96" rot="R90"/>
 </instance>
 <instance part="P+5" gate="VCC" x="43.18" y="50.8" smashed="yes" rot="R270">
-<attribute name="VALUE" x="40.64" y="53.34" size="1.778" layer="96"/>
+<attribute name="VALUE" x="43.18" y="50.8" size="1.778" layer="96"/>
 </instance>
 <instance part="R5" gate="G$1" x="78.74" y="91.44" smashed="yes" rot="R90">
 <attribute name="VALUE" x="76.962" y="85.09" size="1.778" layer="96" rot="R90"/>
@@ -4195,6 +4346,10 @@ type 0309, grid 2.5 mm</description>
 <instance part="R34" gate="G$1" x="154.94" y="-12.7" smashed="yes" rot="R90"/>
 <instance part="R35" gate="G$1" x="157.48" y="-12.7" smashed="yes" rot="R90"/>
 <instance part="R36" gate="G$1" x="160.02" y="-12.7" smashed="yes" rot="R90"/>
+<instance part="CN1" gate="G$1" x="-7.62" y="45.72" smashed="yes" rot="R90">
+<attribute name="NAME" x="-12.7" y="40.64" size="1.27" layer="95" rot="R90"/>
+<attribute name="VALUE" x="-2.54" y="40.64" size="1.27" layer="96" rot="R90"/>
+</instance>
 </instances>
 <busses>
 </busses>
@@ -4312,7 +4467,7 @@ type 0309, grid 2.5 mm</description>
 <pinref part="GND3" gate="1" pin="GND"/>
 </segment>
 </net>
-<net name="N$40" class="0">
+<net name="SER" class="0">
 <segment>
 <pinref part="U$1" gate="G$1" pin="D5"/>
 <wire x1="40.64" y1="68.58" x2="58.42" y2="68.58" width="0.1524" layer="91"/>
@@ -4320,6 +4475,7 @@ type 0309, grid 2.5 mm</description>
 <wire x1="58.42" y1="124.46" x2="99.06" y2="124.46" width="0.1524" layer="91"/>
 <pinref part="U1" gate="U1" pin="SER"/>
 <wire x1="99.06" y1="124.46" x2="99.06" y2="116.84" width="0.1524" layer="91"/>
+<label x="40.64" y="68.58" size="1.778" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="N$45" class="0">
@@ -4448,39 +4604,9 @@ type 0309, grid 2.5 mm</description>
 <pinref part="U1" gate="U1" pin="QA"/>
 </segment>
 </net>
-<net name="N$29" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="D7"/>
-<wire x1="40.64" y1="63.5" x2="53.34" y2="63.5" width="0.1524" layer="91"/>
-<wire x1="53.34" y1="63.5" x2="53.34" y2="129.54" width="0.1524" layer="91"/>
-<wire x1="53.34" y1="129.54" x2="86.36" y2="129.54" width="0.1524" layer="91"/>
-<pinref part="U1" gate="U1" pin="RCK"/>
-<wire x1="86.36" y1="129.54" x2="86.36" y2="116.84" width="0.1524" layer="91"/>
-<wire x1="149.86" y1="129.54" x2="86.36" y2="129.54" width="0.1524" layer="91"/>
-<junction x="86.36" y="129.54"/>
-</segment>
-</net>
-<net name="N$78" class="0">
-<segment>
-<pinref part="U$1" gate="G$1" pin="D6"/>
-<wire x1="40.64" y1="66.04" x2="55.88" y2="66.04" width="0.1524" layer="91"/>
-<wire x1="55.88" y1="66.04" x2="55.88" y2="127" width="0.1524" layer="91"/>
-<wire x1="55.88" y1="127" x2="93.98" y2="127" width="0.1524" layer="91"/>
-<pinref part="U1" gate="U1" pin="SCK"/>
-<wire x1="93.98" y1="127" x2="93.98" y2="116.84" width="0.1524" layer="91"/>
-<wire x1="93.98" y1="127" x2="157.48" y2="127" width="0.1524" layer="91"/>
-<junction x="93.98" y="127"/>
-</segment>
-</net>
 <net name="N$28" class="0">
 <segment>
 <portref moduleinst="7SEG1" port="VCC2"/>
-</segment>
-</net>
-<net name="N$42" class="0">
-<segment>
-<pinref part="U1" gate="U1" pin="QH*"/>
-<wire x1="76.2" y1="96.52" x2="76.2" y2="71.12" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$18" class="0">
@@ -4574,6 +4700,11 @@ type 0309, grid 2.5 mm</description>
 <segment>
 <pinref part="U2" gate="U1" pin="SER"/>
 <wire x1="162.56" y1="124.46" x2="162.56" y2="116.84" width="0.1524" layer="91"/>
+<wire x1="162.56" y1="124.46" x2="114.3" y2="124.46" width="0.1524" layer="91"/>
+<wire x1="114.3" y1="124.46" x2="114.3" y2="71.12" width="0.1524" layer="91"/>
+<pinref part="U1" gate="U1" pin="QH*"/>
+<wire x1="76.2" y1="96.52" x2="76.2" y2="71.12" width="0.1524" layer="91"/>
+<wire x1="114.3" y1="71.12" x2="76.2" y2="71.12" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$30" class="0">
@@ -4624,16 +4755,52 @@ type 0309, grid 2.5 mm</description>
 <pinref part="U2" gate="U1" pin="QA"/>
 </segment>
 </net>
-<net name="N$38" class="0">
+<net name="LATCH" class="0">
 <segment>
 <pinref part="U2" gate="U1" pin="RCK"/>
 <wire x1="149.86" y1="129.54" x2="149.86" y2="116.84" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="D7"/>
+<wire x1="40.64" y1="63.5" x2="53.34" y2="63.5" width="0.1524" layer="91"/>
+<wire x1="53.34" y1="63.5" x2="53.34" y2="129.54" width="0.1524" layer="91"/>
+<wire x1="53.34" y1="129.54" x2="86.36" y2="129.54" width="0.1524" layer="91"/>
+<pinref part="U1" gate="U1" pin="RCK"/>
+<wire x1="86.36" y1="129.54" x2="86.36" y2="116.84" width="0.1524" layer="91"/>
+<wire x1="149.86" y1="129.54" x2="86.36" y2="129.54" width="0.1524" layer="91"/>
+<junction x="86.36" y="129.54"/>
+<label x="40.64" y="63.5" size="1.778" layer="95" xref="yes"/>
+<pinref part="U3" gate="U1" pin="RCK"/>
+<wire x1="81.28" y1="25.4" x2="81.28" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="53.34" y1="63.5" x2="53.34" y2="25.4" width="0.1524" layer="91"/>
+<wire x1="53.34" y1="25.4" x2="81.28" y2="25.4" width="0.1524" layer="91"/>
+<junction x="53.34" y="63.5"/>
+<pinref part="U4" gate="U1" pin="RCK"/>
+<wire x1="149.86" y1="25.4" x2="149.86" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="81.28" y1="25.4" x2="149.86" y2="25.4" width="0.1524" layer="91"/>
+<junction x="81.28" y="25.4"/>
 </segment>
 </net>
-<net name="N$39" class="0">
+<net name="CLK" class="0">
 <segment>
 <pinref part="U2" gate="U1" pin="SCK"/>
 <wire x1="157.48" y1="127" x2="157.48" y2="116.84" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="D6"/>
+<wire x1="40.64" y1="66.04" x2="55.88" y2="66.04" width="0.1524" layer="91"/>
+<wire x1="55.88" y1="66.04" x2="55.88" y2="127" width="0.1524" layer="91"/>
+<wire x1="55.88" y1="127" x2="93.98" y2="127" width="0.1524" layer="91"/>
+<pinref part="U1" gate="U1" pin="SCK"/>
+<wire x1="93.98" y1="127" x2="93.98" y2="116.84" width="0.1524" layer="91"/>
+<wire x1="93.98" y1="127" x2="157.48" y2="127" width="0.1524" layer="91"/>
+<junction x="93.98" y="127"/>
+<label x="40.64" y="66.04" size="1.778" layer="95" xref="yes"/>
+<wire x1="55.88" y1="66.04" x2="55.88" y2="22.86" width="0.1524" layer="91"/>
+<junction x="55.88" y="66.04"/>
+<pinref part="U4" gate="U1" pin="SCK"/>
+<wire x1="157.48" y1="22.86" x2="157.48" y2="12.7" width="0.1524" layer="91"/>
+<pinref part="U3" gate="U1" pin="SCK"/>
+<wire x1="88.9" y1="22.86" x2="88.9" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="157.48" y1="22.86" x2="88.9" y2="22.86" width="0.1524" layer="91"/>
+<wire x1="55.88" y1="22.86" x2="88.9" y2="22.86" width="0.1524" layer="91"/>
+<junction x="88.9" y="22.86"/>
 </segment>
 </net>
 <net name="N$41" class="0">
@@ -4645,6 +4812,12 @@ type 0309, grid 2.5 mm</description>
 <segment>
 <pinref part="U2" gate="U1" pin="QH*"/>
 <wire x1="139.7" y1="96.52" x2="139.7" y2="71.12" width="0.1524" layer="91"/>
+<wire x1="139.7" y1="71.12" x2="116.84" y2="71.12" width="0.1524" layer="91"/>
+<pinref part="U3" gate="U1" pin="SER"/>
+<wire x1="93.98" y1="20.32" x2="93.98" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="116.84" y1="71.12" x2="116.84" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="116.84" y1="12.7" x2="93.98" y2="12.7" width="0.1524" layer="91"/>
+<junction x="93.98" y="12.7"/>
 </segment>
 </net>
 <net name="N$51" class="0">
@@ -4734,12 +4907,6 @@ type 0309, grid 2.5 mm</description>
 <wire x1="91.44" y1="-17.78" x2="91.44" y2="-27.94" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$60" class="0">
-<segment>
-<pinref part="U3" gate="U1" pin="SER"/>
-<wire x1="93.98" y1="20.32" x2="93.98" y2="12.7" width="0.1524" layer="91"/>
-</segment>
-</net>
 <net name="N$61" class="0">
 <segment>
 <pinref part="U3" gate="U1" pin="QH"/>
@@ -4788,18 +4955,6 @@ type 0309, grid 2.5 mm</description>
 <pinref part="U3" gate="U1" pin="QA"/>
 </segment>
 </net>
-<net name="N$69" class="0">
-<segment>
-<pinref part="U3" gate="U1" pin="RCK"/>
-<wire x1="81.28" y1="25.4" x2="81.28" y2="12.7" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$70" class="0">
-<segment>
-<pinref part="U3" gate="U1" pin="SCK"/>
-<wire x1="88.9" y1="22.86" x2="88.9" y2="12.7" width="0.1524" layer="91"/>
-</segment>
-</net>
 <net name="N$71" class="0">
 <segment>
 <portref moduleinst="7SEG3" port="VCC2"/>
@@ -4809,6 +4964,11 @@ type 0309, grid 2.5 mm</description>
 <segment>
 <pinref part="U3" gate="U1" pin="QH*"/>
 <wire x1="71.12" y1="-7.62" x2="71.12" y2="-33.02" width="0.1524" layer="91"/>
+<wire x1="71.12" y1="-33.02" x2="121.92" y2="-33.02" width="0.1524" layer="91"/>
+<wire x1="121.92" y1="-33.02" x2="121.92" y2="20.32" width="0.1524" layer="91"/>
+<pinref part="U4" gate="U1" pin="SER"/>
+<wire x1="162.56" y1="20.32" x2="162.56" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="121.92" y1="20.32" x2="162.56" y2="20.32" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$73" class="0">
@@ -4898,12 +5058,6 @@ type 0309, grid 2.5 mm</description>
 <wire x1="160.02" y1="-17.78" x2="160.02" y2="-27.94" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="N$83" class="0">
-<segment>
-<pinref part="U4" gate="U1" pin="SER"/>
-<wire x1="162.56" y1="20.32" x2="162.56" y2="12.7" width="0.1524" layer="91"/>
-</segment>
-</net>
 <net name="N$84" class="0">
 <segment>
 <pinref part="U4" gate="U1" pin="QH"/>
@@ -4952,27 +5106,25 @@ type 0309, grid 2.5 mm</description>
 <pinref part="U4" gate="U1" pin="QA"/>
 </segment>
 </net>
-<net name="N$92" class="0">
-<segment>
-<pinref part="U4" gate="U1" pin="RCK"/>
-<wire x1="149.86" y1="25.4" x2="149.86" y2="12.7" width="0.1524" layer="91"/>
-</segment>
-</net>
-<net name="N$93" class="0">
-<segment>
-<pinref part="U4" gate="U1" pin="SCK"/>
-<wire x1="157.48" y1="22.86" x2="157.48" y2="12.7" width="0.1524" layer="91"/>
-</segment>
-</net>
 <net name="N$94" class="0">
 <segment>
 <portref moduleinst="7SEG4" port="VCC2"/>
 </segment>
 </net>
-<net name="N$95" class="0">
+<net name="N$29" class="0">
 <segment>
-<pinref part="U4" gate="U1" pin="QH*"/>
-<wire x1="139.7" y1="-7.62" x2="139.7" y2="-33.02" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="VIN"/>
+<pinref part="CN1" gate="G$1" pin="PWR"/>
+<wire x1="0" y1="50.8" x2="-10.16" y2="50.8" width="0.1524" layer="91"/>
+<wire x1="-10.16" y1="50.8" x2="-10.16" y2="48.26" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$38" class="0">
+<segment>
+<pinref part="U$1" gate="G$1" pin="GND@2"/>
+<pinref part="CN1" gate="G$1" pin="GND"/>
+<wire x1="0" y1="53.34" x2="-5.08" y2="53.34" width="0.1524" layer="91"/>
+<wire x1="-5.08" y1="53.34" x2="-5.08" y2="48.26" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
