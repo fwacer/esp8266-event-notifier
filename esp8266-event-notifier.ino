@@ -6,9 +6,6 @@
 */
 
 #include <ESP8266WiFi.h>
-//#include <Time.h>
-//#include <NTPClient.h>
-//#include <WiFiUdp.h>
 #include "HTTPSRedirect.h"
 #include "credentials.h"
 
@@ -22,12 +19,10 @@ const unsigned long RESET_TIME = 36000000; // 10 hours in milliseconds
 unsigned long ENTRY_CALENDER;
 unsigned long ENTRY_UPDATE;
 unsigned long ENTRY_FREETIME;
+unsigned long ENTRY_PHONEHOME;
 unsigned int CURRENT_DISPLAY;
 String CALENDAR_DATA = "";
-bool CALENDAR_UP_TO_DATE;
 bool BLINK = true;
-//WiFiUDP ntpUDP;
-//NTPClient timeClient(ntpUDP, "pool.ntp.org");
 
 String LED_COLOUR = "000000";
 const int PIN_RED = D1;
@@ -40,10 +35,9 @@ const int PIN_LATCH = D7; // Shift register RCLK
 #define UPDATETIME 1800000 // Once every half hour (in milliseconds)
 
 #ifndef CREDENTIALS
-const char* ssid = "........."; //replace with your ssid
-const char* password = ".........."; //replace with your password
-//Google Script ID
-const char *GScriptIdRead = "............"; //replace with your gscript id for reading the calendar
+const char* ssid = "........."; // Replace with your ssid
+const char* password = ".........."; // Replace with your password
+const char *GScriptIdRead = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"; // Replace with your gscript id for reading the calendar
 #endif
 
 // Possible calendar event colours
@@ -103,61 +97,50 @@ const byte SEVEN_SEGMENT[] = { // Common anode
   0b10000111  // t (15)
 };
 
-
-
 // FUNCTIONS // ****************************************************************************
 
-void setColour (String colour){
-  long temp = strtol(&colour[0], NULL, 16); // convert string (of a hex number) to a long
-  int r = (temp >> 16) & 0xff;
-  int g = (temp >> 8) & 0xff;
-  int b = (temp >> 0) & 0xff;
-  analogWrite(PIN_RED, r*4);
-  analogWrite(PIN_GREEN, g*4);
-  analogWrite(PIN_BLUE, b*4);
-  Serial.println("#"+colour);
-}
-
 void setColourRGB (int r, int g, int b, int delayTime){ // range 0-255
+  // Note: analogWrite() initiates a PWM signal to control the brightness of each colour, by modifying the average voltage. The pins used here must be PWM.
   analogWrite(PIN_RED, r*4);
   analogWrite(PIN_GREEN, g*4);
   analogWrite(PIN_BLUE, b*4);
   delay(delayTime);
 }
 
-void rainbow(int secondsPerCycle){ // goes through the rainbow
-  int delayTime = round(secondsPerCycle*1000/6/1023);
+void rainbow(int secondsPerCycle){ // Goes through the rainbow on the RGB LED in the given amount of time
+  int delayTime = round(secondsPerCycle*1000/6/1023); // Set the delay so that we finish in the number of seconds given
   int r = 255;
   int g = 0;
   int b = 0;
   for(g=0; g<255; g++){
-    setColourRGB(r,g,b, delayTime);
+    setColourRGB(r,g,b, delayTime); // Red -> Yellow
   }
   for(r=255; r>0; r--){
-    setColourRGB(r,g,b, delayTime);
+    setColourRGB(r,g,b, delayTime); // Yellow -> Green
   }
   for(b=0; b<255; b++){
-    setColourRGB(r,g,b, delayTime);
+    setColourRGB(r,g,b, delayTime); // Green -> Light Blue
   }
   for(g=255; g>0; g--){
-    setColourRGB(r,g,b, delayTime);
+    setColourRGB(r,g,b, delayTime); // Light Blue -> Dark Blue
   }
   for(r=0; r<255; r++){
-    setColourRGB(r,g,b, delayTime);
+    setColourRGB(r,g,b, delayTime); // Dark Blue -> Magenta
   }
   for(b=255; b>0; b--){
-    setColourRGB(r,g,b, delayTime);
+    setColourRGB(r,g,b, delayTime); // Magenta -> Red
   }
   setColourRGB(0,0,0, 0);
 }
 
 void displaySevenSegment(unsigned int data){ // Format of 32-bit binary number: 0b[8-bit MSB Hour][8-bit LSB Hour][8-bit MSB Minute][8-bit LSB Minute]
   if (CURRENT_DISPLAY == data) return; // Don't bother running if the display hasn't changed
+  CURRENT_DISPLAY = data;
   digitalWrite(PIN_LATCH, LOW);
   digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, (data >> 0) & 0xFF ); // LSB digit of minute
+  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, (data >>  0) & 0xFF ); // LSB digit of minute
   digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, (data >> 8) & 0xFF); // MSB digit of minute
+  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, (data >>  8) & 0xFF); // MSB digit of minute
   digitalWrite(PIN_CLOCK, LOW);
   shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, (data >> 16) & 0xFF); // LSB digit of hour
   digitalWrite(PIN_CLOCK, LOW);
@@ -168,19 +151,7 @@ void displaySevenSegment(unsigned int data){ // Format of 32-bit binary number: 
 void displayTime(String timeString){ // Format "HH:MM" 24hr
   Serial.print("Time to display: ");
   Serial.println(timeString);
-  /*
-  digitalWrite(PIN_LATCH, LOW);
-  digitalWrite(PIN_CLOCK, LOW);
-  Serial.println(timeString);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, SEVEN_SEGMENT[timeString.substring(4,5).toInt()] & ~(PM ? 0x80 : 0x00) ); // LSB digit of minute
-  digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, SEVEN_SEGMENT[timeString.substring(3,4).toInt()]); // MSB digit of minute
-  digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, SEVEN_SEGMENT[timeString.substring(1,2).toInt()]); // LSB digit of hour
-  digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, SEVEN_SEGMENT[timeString.substring(0,1).toInt()]); // MSB digit of hour
-  digitalWrite(PIN_LATCH, HIGH); // Move value to display register
-  */
+
   bool PM = false; // We are trying to find out if the post medidiem boolean needs to be set
   int hour = timeString.substring(0,timeString.indexOf(":")).toInt();
   if (hour>12){
@@ -204,20 +175,22 @@ void displayTime(String timeString){ // Format "HH:MM" 24hr
   
   displaySevenSegment(data);
 }
-void displayBoot(){ // Shows on time display "boot"
-  unsigned int data = SEVEN_SEGMENT[14]; // "b"
+
+void displayBoot(){ // Shows on the seven segment display the word "boot"
+  unsigned int data = SEVEN_SEGMENT[14];  // "b"
   data = (data << 8) | SEVEN_SEGMENT[11]; // "o"
   data = (data << 8) | SEVEN_SEGMENT[11]; // "o"
   data = (data << 8) | SEVEN_SEGMENT[15]; // "t"
   displaySevenSegment(data);
 }
-void displayError(int delayTime = 1000){ // Shows on time display "no conn" and flashes the LED pink and mustard colour
+
+void displayError(int delayTime = 1000){ // Shows on the seven segment display "no conn" and flashes the LED pink then mustard colour
   setColourRGB(255,0,166, 0); //Pink
   // Show on display "no  "
-  unsigned int data = SEVEN_SEGMENT[10]; // "n"
+  unsigned int data = SEVEN_SEGMENT[10];  // "n"
   data = (data << 8) | SEVEN_SEGMENT[11]; // "o"
   data = (data << 16) | 0xFFFF; // nothing
-  displaySevenSegment(data);
+  displaySevenSegment(data); // Show on display "no  "
   delay(delayTime);
 
   setColourRGB(255,213,0, 0); //Mustard
@@ -227,45 +200,16 @@ void displayError(int delayTime = 1000){ // Shows on time display "no conn" and 
   data = (data << 8) | SEVEN_SEGMENT[11]; // "o"
   data = (data << 8) | SEVEN_SEGMENT[10]; // "n"
   data = (data << 8) | SEVEN_SEGMENT[10]; // "n"
-  data = (data << 16) | 0xFFFF; // nothing
-  displaySevenSegment(data);
+  displaySevenSegment(data); // Show on display "conn"
   delay(delayTime);
   displayClear();
-  
-  /*
-  digitalWrite(PIN_LATCH, LOW);
-  digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, 0xFF); // LSB digit of minute
-  digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, 0xFF); // MSB digit of minute
-  digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, SEVEN_SEGMENT[11]); // LSB digit of hour
-  digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, SEVEN_SEGMENT[10]); // MSB digit of hour
-  digitalWrite(PIN_LATCH, HIGH); // Move value to display register
-  
-
-  setColourRGB(255,213,0, 0); //Mustard
-  // Show on display "conn"
-  digitalWrite(PIN_LATCH, LOW);
-  digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, SEVEN_SEGMENT[10]); // LSB digit of minute
-  digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, SEVEN_SEGMENT[10]); // MSB digit of minute
-  digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, SEVEN_SEGMENT[11]); // LSB digit of hour
-  digitalWrite(PIN_CLOCK, LOW);
-  shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, SEVEN_SEGMENT[12]); // MSB digit of hour
-  digitalWrite(PIN_LATCH, HIGH); // Move value to display register
-  delay(delayTime);*/
 }
 
 void displayClear(){ // Clear the seven segment display
   displaySevenSegment(0xFFFFFFFF);
 }
 
-//Connect to wifi
-void connectToWifi() {
+void connectToWifi() { //Connect to the wifi
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -299,8 +243,8 @@ void connectToWifi() {
   if (!flag) {
     Serial.print("Could not connect to server: ");
     Serial.println(HOST);
-    for (int i=0; i<2; i++){ // Let user know that the device is having problems
-      displayError();
+    for (int i=0; i<2; i++){
+      displayError(); // Let user know that the device couldn't connect
       delay(500);
     }
     Serial.println("Exiting...");
@@ -341,30 +285,7 @@ void getCalendar() {
   CALENDAR_DATA = CLIENT->getResponseBody();
   Serial.print("Calendar Data---> ");
   Serial.println(CALENDAR_DATA);
-  CALENDAR_UP_TO_DATE = true;
   yield();
-}
-
-void manageStatus() {
-  /*switch (EVENT_TYPE) { // State machine
-    case InPerson:
-      setColourRGB(255,0,0, 0); // Red
-      break;
-    case VideoCall:
-      setColourRGB(0,0,255, 0); // Blue
-      break;
-    case PhoneCall:
-      setColourRGB(255,130,0, 0); // Yellow
-      break;
-    default:
-      setColourRGB(0,255,0, 0); // Green // maybe add some variation in colour for fun (slight random variations)
-      break;
-  }*/
-  if ((millis()/1000 < ENTRY_FREETIME) && (EVENT_TYPE != None)) {
-    displayTime(NEXT_FREE_TIME);
-  } else {
-    displayClear();
-  }
 }
 
 void classifyEvent(String calendar_data) {
@@ -387,13 +308,13 @@ void classifyEvent(String calendar_data) {
     setColourRGB(255,130,0, 0); // Yellow
   } else {
     EVENT_TYPE = None;
-    setColourRGB(0,255,0, 0); // Green // maybe add some variation in colour for fun (slight random variations)
+    setColourRGB(0,255,0, 0); // Green // maybe add some variation in colour for fun? (slight random variations)
   }
 
   // Get the calendar's next free time
   int timeIndex = tildeIndex+1;
   if(timeIndex >= 0 ){
-    String newTime = calendar_data.substring(timeIndex, calendar_data.indexOf(",s=", timeIndex)-3 ); // Grab only "15:23"
+    String newTime = calendar_data.substring(timeIndex, calendar_data.indexOf(",sToFreeTime=", timeIndex)-3 ); // Grab only "15:23"
     if (newTime != NEXT_FREE_TIME){
       NEXT_FREE_TIME = newTime;
     }
@@ -403,14 +324,34 @@ void classifyEvent(String calendar_data) {
   }
 
   // Get the number of seconds until the calendar's next free time, since the ESP8266 doesn't actually know what time it is.
-  int msTimeIndex = calendar_data.indexOf("s=", 0) + 2;
-  if(timeIndex >= 0 ){
-    ENTRY_FREETIME = millis()/1000 + calendar_data.substring(msTimeIndex, calendar_data.length()).toInt();
+  int sTimeIndex = calendar_data.indexOf("sToFreeTime=", timeIndex) + 12;
+  if(sTimeIndex >= timeIndex ){
+    ENTRY_FREETIME = millis()/1000 + calendar_data.substring(sTimeIndex, calendar_data.indexOf(",",sTimeIndex)).toInt();
   }else{
-    Serial.println("msTimeIndex error");
+    Serial.println("sTimeIndex error");
+  }
+
+  // Get the number of seconds until we should phone home again, since there will be a new event starting.
+  int sPhoneHomeIndex = calendar_data.indexOf("sToNextEvent=", sTimeIndex) + 13;
+  if(sPhoneHomeIndex >= timeIndex ){
+    ENTRY_PHONEHOME = millis()/1000 + calendar_data.substring(sPhoneHomeIndex, calendar_data.indexOf(",",sPhoneHomeIndex)).toInt();
+  }else{
+    Serial.println("sPhoneHomeIndex error");
   }
 }
 
+void manageStatus() {
+  if ((millis()/1000 < ENTRY_FREETIME) && (EVENT_TYPE != None)) {
+    displayTime(NEXT_FREE_TIME);
+  } else {
+    displayClear();
+  }
+  if (millis()/1000 > ENTRY_PHONEHOME) {
+    getCalendar();
+    classifyEvent(CALENDAR_DATA);
+    manageStatus();
+  }
+}
 
 void setup() {
   Serial.begin(9600);
@@ -449,6 +390,9 @@ void loop() {
     manageStatus();
   }
   if (millis() > RESET_TIME){ // Reboot regularly
+    // I've heard that the String class has poor garbage collection / leaves "holes" in the heap which can lead to strange behaviour.
+    // Since I want to use String for ease of programming and readability, the patch solution is to reboot every now and then.
+    // 10 hours is probably excessive, but reboots don't cost me anything.
     Serial.println("Reached 10 hour time limit. Rebooting...");
     ESP.reset();
   }

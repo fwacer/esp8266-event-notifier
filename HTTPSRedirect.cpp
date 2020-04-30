@@ -8,7 +8,17 @@
  */
 
 #include "HTTPSRedirect.h"
-#include "DebugMacros.h"
+// un-comment this line to print the debugging statements
+//#define DEBUG
+
+#ifdef DEBUG
+  #define DPRINT(...)    Serial.print(__VA_ARGS__)
+  #define DPRINTLN(...)  Serial.println(__VA_ARGS__)
+#else
+  // define blank line
+  #define DPRINT(...)
+  #define DPRINTLN(...)
+#endif
 
 HTTPSRedirect::HTTPSRedirect(void) : _httpsPort(443){
   Init();
@@ -484,4 +494,3 @@ void HTTPSRedirect::printHeaderFields(void){
   DPRINTLN(_hF.contentType);
 }
 #endif
-
