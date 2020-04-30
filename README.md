@@ -5,7 +5,9 @@ On the front face, there is a seven-segment display that shows the time that the
 I plan to use this at home, to track when my parent is busy and when they will next be free.
 
 A blog write up will eventually be available here: https://brycedombrowski.com
+
 Demo video: https://youtu.be/q-8Iey-jSQw
+
 The underlying code is based on SensorSlot's implementation of a similar idea: https://github.com/SensorsIot/Reminder-with-Google-Calender
 
 To do:
