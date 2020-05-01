@@ -15,24 +15,22 @@
 const char* HOST = "script.google.com";
 const int HTTPS_PORT = 443;
 HTTPSRedirect* CLIENT = nullptr;
-const unsigned long RESET_TIME = 36000000; // 10 hours in milliseconds
-unsigned long ENTRY_CALENDER;
-unsigned long ENTRY_UPDATE;
-unsigned long ENTRY_FREETIME;
-unsigned long ENTRY_PHONEHOME;
-unsigned int CURRENT_DISPLAY;
+#define RESET_TIME 36000000 // Constant interval on which the ESP resets itself. (10 hours in milliseconds)
+#define UPDATETIME 1800000  // Constant interval on when to phone home next. (30 minutes in milliseconds)
+unsigned long ENTRY_CALENDER; // Used for determining when next to update the calendar (variable is in ms)
+unsigned long ENTRY_HEARTBEAT; // Used for blinking the clock LED once per second (variable is in ms)
+unsigned long ENTRY_FREETIME; // Used for blinking the clock LED once per second (variable is in s)
+unsigned long ENTRY_PHONEHOME; // s (variable is in s)
+unsigned int CURRENT_DISPLAY; // Format "23:14"
 String CALENDAR_DATA = "";
 bool BLINK = true;
 
-String LED_COLOUR = "000000";
 const int PIN_RED = D1;
 const int PIN_GREEN = D2;
 const int PIN_BLUE = D3;
 const int PIN_DATA = D5; // Shift register SER
 const int PIN_CLOCK = D6; // Shift register SRCLK
 const int PIN_LATCH = D7; // Shift register RCLK
-
-#define UPDATETIME 1800000 // Once every half hour (in milliseconds)
 
 #ifndef CREDENTIALS
 const char* ssid = "........."; // Replace with your ssid
@@ -58,7 +56,8 @@ enum eventTypes{
   InPerson = RED,
   VideoCall = BLUE,
   PhoneCall = YELLOW,
-  None = GREEN
+  None = GREEN,
+  Off = 0 // For out-of hours such as late at night
 }EVENT_TYPE;
 String NEXT_FREE_TIME = "00:00";
 
@@ -290,7 +289,7 @@ void getCalendar() {
 
 void classifyEvent(String calendar_data) {
   Serial.println(calendar_data);
-  // Finds the highest priority event, then sets "EVENT_TYPE" to that value. (Like a state machine)
+  // Finds the highest priority event, then does stuff. (Like a state machine)
   
   int tildeIndex = calendar_data.indexOf("~");
   int inPersonIndex = calendar_data.indexOf(String(InPerson));
@@ -343,8 +342,9 @@ void classifyEvent(String calendar_data) {
 void manageStatus() {
   if ((millis()/1000 < ENTRY_FREETIME) && (EVENT_TYPE != None)) {
     displayTime(NEXT_FREE_TIME);
-  } else {
+  } else if (EVENT_TYPE != None){
     displayClear();
+    ENTRY_PHONEHOME = 0; // Time to check the calendar again. Will probably end up just setting "EVENT_TYPE" to None
   }
   if (millis()/1000 > ENTRY_PHONEHOME) {
     getCalendar();
@@ -362,7 +362,7 @@ void setup() {
   pinMode(PIN_CLOCK, OUTPUT);
   pinMode(PIN_LATCH, OUTPUT);
   ENTRY_CALENDER = millis();
-  ENTRY_UPDATE = millis();
+  ENTRY_HEARTBEAT = millis();
   ENTRY_FREETIME = millis();
   
   setColourRGB(0,0,0, 0);
@@ -384,9 +384,9 @@ void loop() {
     ENTRY_CALENDER = millis();
     classifyEvent(CALENDAR_DATA);
   }
-  if (millis() > ENTRY_UPDATE + 1000) { // once per second
-    ENTRY_UPDATE = millis();
-    BLINK = !BLINK;
+  if (millis() > ENTRY_HEARTBEAT + 1000) { // Once per second
+    ENTRY_HEARTBEAT = millis();
+    BLINK = !BLINK; // Blink the clock LED to show that the code is not hung
     manageStatus();
   }
   if (millis() > RESET_TIME){ // Reboot regularly
