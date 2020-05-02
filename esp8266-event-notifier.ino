@@ -22,8 +22,8 @@
 #define PIN_LATCH D7 // Shift register RCLK
 
 // Define the start and end of the day so that the lights turn off late at night
-#define DAY_START_HOUR 5
-#define DAY_END_HOUR 17
+#define DAY_START_HOUR 7
+#define DAY_END_HOUR 20
 
 // Define refresh times
 #define RESET_TIME 86400000 // Constant interval on which the ESP resets itself. (1 day in milliseconds)
