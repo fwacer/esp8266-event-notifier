@@ -1,3 +1,9 @@
+# get_bin_value.py
+'''
+This program converts the letters A through G (and P for decimal point)
+to their respective binary value for a common-anode seven segment display.
+'''
+
 output = ''
 flags = {
     "a": 0,
@@ -16,13 +22,13 @@ def main():
     for c in value:
         binary_val |= 1<<flags[c]
     binary_val = 0x00FF & ~binary_val
-    output += ' '+format(binary_val, '08b')
+    output += ' 0b'+format(binary_val, '08b') # Prints 8-bit numbers, separated by a space.
     
 if __name__ == "__main__":
     try:
         while True:
             main()
-    except KeyboardInterrupt:
+    except KeyboardInterrupt: # This program only quits when the user inputs "CTRL+C"
         print ("Output:")
         print(output)
     
