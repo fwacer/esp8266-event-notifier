@@ -5,38 +5,29 @@
   Modified from https://github.com/SensorsIot/Reminder-with-Google-Calender
 */
 
+// INCLUDES // ************************************************************************************************************************
+
 #include <ESP8266WiFi.h>
 #include "HTTPSRedirect.h"
 #include "credentials.h"
 
-// GLOBALS // ****************************************************************************
+// DEFINES // *************************************************************************************************************************
 
-//Connection Settings
-const char* HOST = "script.google.com";
-const int HTTPS_PORT = 443;
-HTTPSRedirect* CLIENT = nullptr;
-#define RESET_TIME 36000000 // Constant interval on which the ESP resets itself. (10 hours in milliseconds)
-#define UPDATETIME 1800000  // Constant interval on when to phone home next. (30 minutes in milliseconds)
-unsigned long ENTRY_CALENDER; // Used for determining when next to update the calendar (variable is in ms)
-unsigned long ENTRY_HEARTBEAT; // Used for blinking the clock LED once per second (variable is in ms)
-unsigned long ENTRY_FREETIME; // Used for blinking the clock LED once per second (variable is in s)
-unsigned long ENTRY_PHONEHOME; // s (variable is in s)
-unsigned int CURRENT_DISPLAY; // Format "23:14"
-String CALENDAR_DATA = "";
-bool BLINK = true;
+// Define pins
+#define PIN_RED   D1 // Red anode of the RGB LED. Must be a PWM pin.
+#define PIN_GREEN D2 // Green anode of the RGB LED. Must be a PWM pin.
+#define PIN_BLUE  D3 // Blue anode of the RGB LED. Must be a PWM pin.
+#define PIN_DATA  D5 // Shift register SER
+#define PIN_CLOCK D6 // Shift register SRCLK
+#define PIN_LATCH D7 // Shift register RCLK
 
-const int PIN_RED = D1;
-const int PIN_GREEN = D2;
-const int PIN_BLUE = D3;
-const int PIN_DATA = D5; // Shift register SER
-const int PIN_CLOCK = D6; // Shift register SRCLK
-const int PIN_LATCH = D7; // Shift register RCLK
+// Define the start and end of the day so that the lights turn off late at night
+#define DAY_START_HOUR 5
+#define DAY_END_HOUR 17
 
-#ifndef CREDENTIALS
-const char* ssid = "........."; // Replace with your ssid
-const char* password = ".........."; // Replace with your password
-const char *GScriptIdRead = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"; // Replace with your gscript id for reading the calendar
-#endif
+// Define refresh times
+#define RESET_TIME 86400000 // Constant interval on which the ESP resets itself. (1 day in milliseconds)
+#define UPDATE_TIME 1800000 // Constant interval on when to phone home next. (30 minutes in milliseconds)
 
 // Possible calendar event colours
 #define PALE_BLUE 1 // Lavender
@@ -51,33 +42,38 @@ const char *GScriptIdRead = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 #define GREEN 10 // Basil
 #define RED 11 // Tomato
 
+// GLOBALS // *************************************************************************************************************************
+
+//Connection Settings
+const char* HOST = "script.google.com";
+const int HTTPS_PORT = 443;
+HTTPSRedirect* CLIENT = nullptr;
+
+#ifndef CREDENTIALS // Include the below in a "credentials.h" file
+  const char* SSID_NAME = "........."; // Replace with your ssid
+  const char* SSID_PASSWORD = ".........."; // Replace with your password
+  const char *GSCRIPT_ID = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"; // Replace with your gscript id for reading the calendar
+#endif
+
+unsigned long HEARTBEAT; // Used for blinking the clock LED once per second (variable is in ms)
+unsigned long NEXT_UPDATE_TIME; // Used for determining when next to update the calendar (variable is in ms)
+unsigned int CURRENT_DISPLAY; // Format of 32-bit binary number: 0b[8-bit MSB Hour][8-bit LSB Hour][8-bit MSB Minute][8-bit LSB Minute]
+String CALENDAR_DATA = ""; // String of data received from a google apps script
+String NEXT_FREE_TIME = "00:00"; // Format "23:14"
+int CURRENT_HOUR = 0; // Used with DAY_START_HOUR and DAY_END_HOUR to determine if we should go into quiet mode
+bool BLINK = true;
+
 enum eventTypes{
   // Event types are in order of importance
   InPerson = RED,
   VideoCall = BLUE,
   PhoneCall = YELLOW,
   None = GREEN,
-  Off = 0 // For out-of hours such as late at night
-}EVENT_TYPE;
-String NEXT_FREE_TIME = "00:00";
-
-/*
-const byte SEVEN_SEGMENT[] = { // Common cathode
-  // DP G F E D C B A
-    0b00111111, // 0
-    0b00000110, // 1
-    0b01011011, // 2
-    0b01001111, // 3
-    0b01100110, // 4
-    0b01101101, // 5
-    0b01111101, // 6
-    0b00000111, // 7
-    0b01111111, // 8
-    0b01101111, // 9
-};*/
+  Sleep = 0 // For out-of hours such as late at night
+} STATE; // State variable for current on-going event
 
 const byte SEVEN_SEGMENT[] = { // Common anode
-  // DP G F E D C B A (I hooked mine up backwards, but just use MSBFIRST instead of LSBFIRST)
+  // DP G F E D C B A (I hooked mine up backwards, but just use MSBFIRST instead of LSBFIRST in "shiftOut()" )
   0b11000000, // 0
   0b11111001, // 1
   0b10100100, // 2
@@ -93,10 +89,27 @@ const byte SEVEN_SEGMENT[] = { // Common anode
   0b10100111, // c (12)
   0b11111111, // nothing (13)
   0b10000011, // b (14)
-  0b10000111  // t (15)
+  0b10000111, // t (15)
+  0b10010010, // S (16)
+  0b11000111, // L (17)
+  0b10001100, // P (18)
 };
 
-// FUNCTIONS // ****************************************************************************
+/*const byte SEVEN_SEGMENT[] = { // Common cathode
+  // DP G F E D C B A
+    0b00111111, // 0
+    0b00000110, // 1
+    0b01011011, // 2
+    0b01001111, // 3
+    0b01100110, // 4
+    0b01101101, // 5
+    0b01111101, // 6
+    0b00000111, // 7
+    0b01111111, // 8
+    0b01101111, // 9
+};*/
+
+// FUNCTIONS // ***********************************************************************************************************************
 
 void setColourRGB (int r, int g, int b, int delayTime){ // range 0-255
   // Note: analogWrite() initiates a PWM signal to control the brightness of each colour, by modifying the average voltage. The pins used here must be PWM.
@@ -147,6 +160,26 @@ void displaySevenSegment(unsigned int data){ // Format of 32-bit binary number: 
   digitalWrite(PIN_LATCH, HIGH); // Move value to display register
 }
 
+void displayClear(){ // Clear the seven segment display
+  displaySevenSegment(0xFFFFFFFF);
+}
+
+void displaySleep(){ // Shows on the seven segment display the word "SLP"
+  unsigned int data =  SEVEN_SEGMENT[16]; // "S"
+  data = (data << 8) | SEVEN_SEGMENT[17]; // "L"
+  data = (data << 8) | SEVEN_SEGMENT[18]; // "P"
+  data = (data << 8) | 0xFF;              // nothing
+  displaySevenSegment(data);
+}
+
+void displayBoot(){ // Shows on the seven segment display the word "boot"
+  unsigned int data =  SEVEN_SEGMENT[14]; // "b"
+  data = (data << 8) | SEVEN_SEGMENT[11]; // "o"
+  data = (data << 8) | SEVEN_SEGMENT[11]; // "o"
+  data = (data << 8) | SEVEN_SEGMENT[15]; // "t"
+  displaySevenSegment(data);
+}
+
 void displayTime(String timeString){ // Format "HH:MM" 24hr
   Serial.print("Time to display: ");
   Serial.println(timeString);
@@ -175,24 +208,15 @@ void displayTime(String timeString){ // Format "HH:MM" 24hr
   displaySevenSegment(data);
 }
 
-void displayBoot(){ // Shows on the seven segment display the word "boot"
-  unsigned int data = SEVEN_SEGMENT[14];  // "b"
-  data = (data << 8) | SEVEN_SEGMENT[11]; // "o"
-  data = (data << 8) | SEVEN_SEGMENT[11]; // "o"
-  data = (data << 8) | SEVEN_SEGMENT[15]; // "t"
-  displaySevenSegment(data);
-}
-
 void displayError(int delayTime = 1000){ // Shows on the seven segment display "no conn" and flashes the LED pink then mustard colour
-  setColourRGB(255,0,166, 0); //Pink
   // Show on display "no  "
   unsigned int data = SEVEN_SEGMENT[10];  // "n"
   data = (data << 8) | SEVEN_SEGMENT[11]; // "o"
   data = (data << 16) | 0xFFFF; // nothing
   displaySevenSegment(data); // Show on display "no  "
+  setColourRGB(255,0,166, 0); // Pink colour
   delay(delayTime);
 
-  setColourRGB(255,213,0, 0); //Mustard
   // Show on display "conn"
   data = 0x00;
   data = (data << 8) | SEVEN_SEGMENT[12]; // "c"
@@ -200,16 +224,13 @@ void displayError(int delayTime = 1000){ // Shows on the seven segment display "
   data = (data << 8) | SEVEN_SEGMENT[10]; // "n"
   data = (data << 8) | SEVEN_SEGMENT[10]; // "n"
   displaySevenSegment(data); // Show on display "conn"
+  setColourRGB(255,213,0, 0); // Mustard colour
   delay(delayTime);
   displayClear();
 }
 
-void displayClear(){ // Clear the seven segment display
-  displaySevenSegment(0xFFFFFFFF);
-}
-
-void connectToWifi() { //Connect to the wifi
-  WiFi.begin(ssid, password);
+void connectToWifi() { // Connect to the wifi
+  WiFi.begin(SSID_NAME, SSID_PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
@@ -252,7 +273,7 @@ void connectToWifi() { //Connect to the wifi
   Serial.println("Connected to Google");
 }
 
-void getCalendar() {
+void getCalendar() { // Gets a String of sent information from the google apps script
   Serial.println("Start Request");
   // HTTPSRedirect CLIENT(HTTPS_PORT);
   unsigned long getCalenderEntry = millis();
@@ -279,7 +300,7 @@ void getCalendar() {
     ESP.reset();
   }
   //Fetch Google Calendar events
-  String url = String("/macros/s/") + GScriptIdRead + "/exec";
+  String url = String("/macros/s/") + GSCRIPT_ID + "/exec";
   CLIENT->GET(url, HOST);
   CALENDAR_DATA = CLIENT->getResponseBody();
   Serial.print("Calendar Data---> ");
@@ -287,73 +308,66 @@ void getCalendar() {
   yield();
 }
 
-void classifyEvent(String calendar_data) {
-  Serial.println(calendar_data);
-  // Finds the highest priority event, then does stuff. (Like a state machine)
+void classifyEvent(String calendar_data) { // Finds the highest priority event, then does stuff. (Like a state machine)
+  Serial.println(calendar_data); // Debug information
   
-  int tildeIndex = calendar_data.indexOf("~");
+  int tildeIndex = calendar_data.indexOf("~"); // This is the border of when the next part of the data starts
   int inPersonIndex = calendar_data.indexOf(String(InPerson));
   int videoCallIndex = calendar_data.indexOf(String(VideoCall));
   int phoneCallIndex = calendar_data.indexOf(String(PhoneCall));
-  
+
+  // This is essentially a state machine, with the state being "STATE".
   if ( (inPersonIndex >= 0) && (inPersonIndex < tildeIndex) ){
-    EVENT_TYPE = InPerson;
+    STATE = InPerson;
     setColourRGB(255,0,0, 0); // Red
   } else if ( (videoCallIndex >= 0) && (videoCallIndex < tildeIndex) ){
-    EVENT_TYPE = VideoCall;
+    STATE = VideoCall;
     setColourRGB(0,0,255, 0); // Blue
   } else if ( (phoneCallIndex >= 0) && (phoneCallIndex < tildeIndex) ){
-    EVENT_TYPE = PhoneCall;
+    STATE = PhoneCall;
     setColourRGB(255,130,0, 0); // Yellow
   } else {
-    EVENT_TYPE = None;
+    STATE = None;
     setColourRGB(0,255,0, 0); // Green // maybe add some variation in colour for fun? (slight random variations)
+    displayClear();
   }
 
-  // Get the calendar's next free time
+  // Get the calendar's next free time. It looks over a range of 14 hours.
   int timeIndex = tildeIndex+1;
   if(timeIndex >= 0 ){
-    String newTime = calendar_data.substring(timeIndex, calendar_data.indexOf(",sToFreeTime=", timeIndex)-3 ); // Grab only "15:23"
+    String newTime = calendar_data.substring(timeIndex, calendar_data.indexOf(",sToPhoneHome=", timeIndex)-3 ); // Grab only "15:23"
     if (newTime != NEXT_FREE_TIME){
-      NEXT_FREE_TIME = newTime;
+      NEXT_FREE_TIME = newTime; // Format is "23:14"
     }
   }else{
     NEXT_FREE_TIME = "00:00"; // Error
     Serial.println("NEXT_FREE_TIME error");
   }
 
-  // Get the number of seconds until the calendar's next free time, since the ESP8266 doesn't actually know what time it is.
-  int sTimeIndex = calendar_data.indexOf("sToFreeTime=", timeIndex) + 12;
-  if(sTimeIndex >= timeIndex ){
-    ENTRY_FREETIME = millis()/1000 + calendar_data.substring(sTimeIndex, calendar_data.indexOf(",",sTimeIndex)).toInt();
+  // Get the number of seconds until we should phone home again.
+  /* This takes the minimum time from of a list of all events happening over the next day:
+   *  - The end time from the event that will end earliest
+   *  - The start time from the event that will start earliest (that hasn't already started)
+   */
+  int sToPhoneHomeIndex = calendar_data.indexOf("sToPhoneHome=", timeIndex) + 13;
+  if(sToPhoneHomeIndex >= timeIndex ){
+    unsigned long newTime = calendar_data.substring(sToPhoneHomeIndex, calendar_data.indexOf(",",sToPhoneHomeIndex)).toInt()*1000 + millis();
+    if (newTime < NEXT_UPDATE_TIME){ // Check if the time suggested by the google script is less than the next time we were already planning to update
+      NEXT_UPDATE_TIME = newTime;
+    }
   }else{
-    Serial.println("sTimeIndex error");
+    Serial.println("sToPhoneHomeIndex error");
   }
 
-  // Get the number of seconds until we should phone home again, since there will be a new event starting.
-  int sPhoneHomeIndex = calendar_data.indexOf("sToNextEvent=", sTimeIndex) + 13;
-  if(sPhoneHomeIndex >= timeIndex ){
-    ENTRY_PHONEHOME = millis()/1000 + calendar_data.substring(sPhoneHomeIndex, calendar_data.indexOf(",",sPhoneHomeIndex)).toInt();
+  int currentTimeIndex = calendar_data.indexOf("currentTime=", timeIndex) + 12;
+  if(currentTimeIndex >= sToPhoneHomeIndex ){
+    CURRENT_HOUR = calendar_data.substring(currentTimeIndex, calendar_data.indexOf(":", currentTimeIndex) ).toInt(); // Grab only the hour
   }else{
-    Serial.println("sPhoneHomeIndex error");
+    Serial.println("currentTime error");
   }
 }
 
-void manageStatus() {
-  if ((millis()/1000 < ENTRY_FREETIME) && (EVENT_TYPE != None)) {
-    displayTime(NEXT_FREE_TIME);
-  } else if (EVENT_TYPE != None){
-    displayClear();
-    ENTRY_PHONEHOME = 0; // Time to check the calendar again. Will probably end up just setting "EVENT_TYPE" to None
-  }
-  if (millis()/1000 > ENTRY_PHONEHOME) {
-    getCalendar();
-    classifyEvent(CALENDAR_DATA);
-    manageStatus();
-  }
-}
-
-void setup() {
+void setup() { // Main code that runs once, initializes variables.
   Serial.begin(9600);
   pinMode(PIN_RED, OUTPUT);
   pinMode(PIN_GREEN, OUTPUT);
@@ -361,39 +375,51 @@ void setup() {
   pinMode(PIN_DATA, OUTPUT);
   pinMode(PIN_CLOCK, OUTPUT);
   pinMode(PIN_LATCH, OUTPUT);
-  ENTRY_CALENDER = millis();
-  ENTRY_HEARTBEAT = millis();
-  ENTRY_FREETIME = millis();
+  NEXT_UPDATE_TIME = millis();
+  HEARTBEAT = millis();
   
   setColourRGB(0,0,0, 0);
-  displayBoot(); // Show boot message on seven segment display
+  displayBoot(); // Show "boot" on seven segment display
   
   connectToWifi();
-  rainbow(15); // Startup colours, let us know we connected successfully
-
-  // Run everything the first time
-  getCalendar();
-  classifyEvent(CALENDAR_DATA);
-  manageStatus();
+  rainbow(15); // Startup colours, let us know that we connected successfully
 }
 
-void loop() {
+void loop() { // Code that runs continuously on a loop
   yield(); // Let the ESP8266 do background stuff if it needs to
-  if (millis() > ENTRY_CALENDER + UPDATETIME) {
+  if (millis() > NEXT_UPDATE_TIME) {
+    NEXT_UPDATE_TIME = millis() + UPDATE_TIME;
     getCalendar();
-    ENTRY_CALENDER = millis();
     classifyEvent(CALENDAR_DATA);
   }
-  if (millis() > ENTRY_HEARTBEAT + 1000) { // Once per second
-    ENTRY_HEARTBEAT = millis();
-    BLINK = !BLINK; // Blink the clock LED to show that the code is not hung
-    manageStatus();
+  
+  if (millis() > HEARTBEAT + 1000) { // Once per second
+    HEARTBEAT = millis();
+
+    if ((DAY_END_HOUR <= CURRENT_HOUR) || ( CURRENT_HOUR < DAY_START_HOUR)){ // If it's after hours, turn off the display and LED
+      if (STATE != Sleep){
+        STATE = Sleep; // Run this code only once
+        displaySleep(); // Display "SLP" on seven segment display
+        setColourRGB(201,52,235, /*delay=*/3000); // Magenta colour
+
+        displayClear(); setColourRGB(0,0,0, 0); // Turn off display and LED
+        NEXT_UPDATE_TIME = (24 - DAY_END_HOUR + DAY_START_HOUR)*3600*1000; // Don't update until the morning.
+      } 
+    }else if (STATE == Sleep){ // We are now back in working hours, since the first "if" statement was not triggered.
+      NEXT_UPDATE_TIME = 0; // On the next run of "loop()", the google apps script will be called.
+      
+    }else if (STATE != None) { // Display next free time if we have an event ongoing
+      BLINK = !BLINK; // Blink the clock LED to show that the code is not hung
+      displayTime(NEXT_FREE_TIME);
+        
+    }else{} // STATE == None
   }
+  
   if (millis() > RESET_TIME){ // Reboot regularly
     // I've heard that the String class has poor garbage collection / leaves "holes" in the heap which can lead to strange behaviour.
     // Since I want to use String for ease of programming and readability, the patch solution is to reboot every now and then.
-    // 10 hours is probably excessive, but reboots don't cost me anything.
-    Serial.println("Reached 10 hour time limit. Rebooting...");
+    // Currently resets every day (24 hours)
+    Serial.println("Reached 24 hour time limit. Rebooting...");
     ESP.reset();
   }
 }

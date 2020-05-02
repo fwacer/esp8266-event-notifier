@@ -1,3 +1,5 @@
+// Written by Bryce Dombrowski 2020
+
 function doGet(){
   //Logger.log(ContentService.createTextOutput(GetEvents()));
   var val = ContentService.createTextOutput(GetEvents());
@@ -20,40 +22,41 @@ function GetEvents(){
   RED	        Enum	 Red ("11").
   */
   
+  var _calendarName = 'Bryce\'s Schedule'; // Enter the name of the calendar as displayed to you here.
+  var cal = CalendarApp.getCalendarsByName(_calendarName)[0];
+  var now = new Date();
+  var oneMinuteFromNow = new Date(now.getTime() + 60000); // One minute from now
+  var fourteenHoursFromNow  = new Date(now.getTime() + 14*3600*1000); // Fourteen hours from now -> This is the longest that we will look when searching for the calendar's next free slot.
   
-  
-  var _calendarName = 'Bryce\'s Schedule';
-  var Cal = CalendarApp.getCalendarsByName(_calendarName)[0];
-  var Now = new Date();
-  var OneMinuteFromNow = new Date(Now.getTime() + 60000); // One minute from now
-  var OneHourFromNow  = new Date(Now.getTime() + 3600000); // One hour from now
-  // Logger.log(Now);
-  // Logger.log(OneHourFromNow);
-  var events = Cal.getEvents(Now, OneMinuteFromNow); // Check if any events are occuring right now.
-  //Logger.log(events.length);
-  var eventsLater = Cal.getEvents(Now, OneHourFromNow); // Check if any event will be occuring before we would normally sync again
+  var eventsNow = cal.getEvents(now, oneMinuteFromNow); // Check if any events are occuring right now.
+  var eventsLater = cal.getEvents(now, fourteenHoursFromNow); // Check for the rest of the day's events
   
   var return_val = "";
-  for (var i = 0; i < events.length; i++){
-    return_val += events[i].getColor() + ',';
+  for (var i = 0; i < eventsNow.length; i++){
+    return_val += eventsNow[i].getColor() + ','; // List colours numbers of all current ongoing events. We'll determine what this means on the microcontroller itself.
   }
   
-  var earliestFreeTime = Now; // Earliest time the schedule could be free is right now
-  var phoneHomeTime = OneHourFromNow; // Could also be named nextEventStartTime. This is when the microcontroller will next phone home at latest.
-  for (var i = 0; i < eventsLater.length; i++){
-    if ( (eventsLater[i].getStartTime() < earliestFreeTime) && (eventsLater[i].getEndTime() > earliestFreeTime)){ // This assumes eventsLater[] is sorted by earliest to latest start date
-      if (!eventsLater[i].isAllDayEvent()){
-        earliestFreeTime = eventsLater[i].getEndTime();
+  var earliestFreeTime = now; // Earliest time the schedule could be free is right now
+  var phoneHomeTime = new Date(now.getTime() + 3600*1000); // One hour is when the microcontroller will next phone home at latest.
+  for (var i = 0; i < eventsLater.length; i++){ // Iterate over the day's events
+    var startTime = eventsLater[i].getStartTime();
+    var endTime = eventsLater[i].getEndTime();
+    if (!eventsLater[i].isAllDayEvent()){ // Ignore all-day events
+      if ( (startTime < earliestFreeTime) && (endTime > earliestFreeTime)){ // Getting the next free time slot for display on the seven segment display
+        earliestFreeTime = endTime;
+      }
+      if ( (startTime < phoneHomeTime) && (startTime > now)){ // Case where there is another event starting before we would normally phone home
+        phoneHomeTime = startTime;
+      }
+      if ( (endTime < phoneHomeTime) && (startTime < now)){ // Case where a currently-running event is ending before we would normally phone home
+        phoneHomeTime = endTime;
       }
     }
-    if ( (eventsLater[i].getStartTime() < phoneHomeTime) && (eventsLater[i].getStartTime() > Now)){
-      phoneHomeTime = eventsLater[i].getStartTime();
-    }
   }
-  return_val += "~" + earliestFreeTime.toLocaleTimeString(); // Formats as "~13:24:00" on the esp8266
-  return_val += ",sToFreeTime=" + (Math.floor((earliestFreeTime.getTime() - Now.getTime())/1000)).toString(); //Formats as ",sToFreeTime=XXXXXX" // Seconds to wait until clock display should turn off
-  return_val += ",sToNextEvent=" + (Math.floor((phoneHomeTime.getTime() - Now.getTime())/1000)).toString(); //Formats as ",sToNextEvent=XXXXXX" // Seconds until the next event (so the microcontroller should phone home then)
+  
+  return_val += "~" + earliestFreeTime.toLocaleTimeString(); // Formats as "~13:24:00" on the esp8266. NOTE: this is different than how it formats if you run this code from your computer's internet browser!
+  return_val += ",sToPhoneHome=" + (Math.floor((phoneHomeTime.getTime() - now.getTime())/1000)).toString(); // Formats as ",sToNextEvent=XXXXXX" // Seconds until the microcontroller should phone home again
+  return_val += ",currentTime=" + now.toLocaleTimeString(); // Formats as ",currentTime=13:24:00" on the esp8266. NOTE: this is different than how it formats if you run this code from your computer's internet browser!
   return_val += ","; // Keep a comma here in case we want to add more arguments, then we won't need to change the previous code
-  // Logger.log(return_val); // also logged in doGet() function
   return return_val;
 }
