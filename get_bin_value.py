@@ -1,6 +1,6 @@
 # get_bin_value.py
 '''
-This program converts the letters A through G (and P for decimal point)
+This standalone program converts the letters A through G (and P for decimal point)
 to their respective binary value for a common-anode seven segment display.
 '''
 
