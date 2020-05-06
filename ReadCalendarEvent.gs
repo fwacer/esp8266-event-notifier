@@ -1,5 +1,9 @@
 // Written by Bryce Dombrowski 2020
 
+/* NOTE - this needs to be copy/pasted into a Google Apps Script ( https://script.google.com/ ).
+   This file is not local normally, and is only here for reference.
+*/ 
+
 function doGet(){
   //Logger.log(ContentService.createTextOutput(GetEvents()));
   var val = ContentService.createTextOutput(GetEvents());
