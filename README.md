@@ -18,8 +18,8 @@ Check out my project portfolio: brycedombrowski.com
 - Create a file called _credentials.h_. It should contain the following:
   ```C++
   #define CREDENTIALS
-  const char* SSID_NAME = "dlink";
-  const char* SSID_PASSWORD = "password";
+  const char* SSID_NAME = "dlink"; // Your wifi's name
+  const char* SSID_PASSWORD = "password"; // Your wifi password
   const char *GSCRIPT_ID =  "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"; //replace with your secret
   ```
 - Make the circuit! I've included both an Eagle schematic and a PDF of my setup. Feel free to modify it or make your own from scratch.
