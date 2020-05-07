@@ -1,15 +1,16 @@
 /*
   2020-04-24
   Bryce Dombrowski
+  https://github.com/fwacer/esp8266-event-notifier
   
-  Modified from https://github.com/SensorsIot/Reminder-with-Google-Calender
+  Inspired from https://github.com/SensorsIot/Reminder-with-Google-Calender
 */
 
 // INCLUDES // ************************************************************************************************************************
 
-#include <ESP8266WiFi.h>
-#include "HTTPSRedirect.h"
-#include "credentials.h"
+#include <ESP8266WiFi.h> // Preferences -> "Additional Board Manager URLs" -> http://arduino.esp8266.com/stable/package_esp8266com_index.json
+#include "HTTPSRedirect.h" // Download the files HTTPSRedirect.cpp and HTTPSRedirect.h from this library and place them in the project folder: https://github.com/electronicsguy/ESP8266/tree/master/HTTPSRedirect
+#include "credentials.h" // This contains your wifi credentials, and your secret for your Google Apps Script. See below "#ifndef CREDENTIALS" for more info
 
 // DEFINES // *************************************************************************************************************************
 
