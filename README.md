@@ -7,9 +7,9 @@ Demo video: https://youtu.be/q-8Iey-jSQw
 
 [![Video thumbnail of the ESP8266 event notifier prototype](https://img.youtube.com/vi/q-8Iey-jSQw/0.jpg)](https://www.youtube.com/watch?v=q-8Iey-jSQw)
 
-The underlying code is based on SensorSlot's implementation of a similar idea: https://github.com/SensorsIot/Reminder-with-Google-Calender
+The underlying code is based on SensorsIOT's implementation of a similar idea: https://github.com/SensorsIot/Reminder-with-Google-Calender
 
-Check out my project portfolio: brycedombrowski.com
+Blog post: https://brycedombrowski.com/2020/05/spring-2020-google-calendar-busy-indicator/
 
 # Instructions to make this project:
 - Download _esp8266-event-notifier.ino_ to your project folder and modify it as needed. The #defines at the top contain most of the things you will want to modify.
