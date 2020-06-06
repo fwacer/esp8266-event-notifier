@@ -30,19 +30,6 @@
 #define RESET_TIME 86400000 // Constant interval on which the ESP resets itself. (1 day in milliseconds)
 #define UPDATE_TIME 1800000 // Constant interval on when to phone home next. (30 minutes in milliseconds)
 
-// Possible calendar event colours
-#define PALE_BLUE 1 // Lavender
-#define PALE_GREEN 2 // Sage
-#define MAUVE 3 // Grape
-#define PALE_RED 4 // Flamingo
-#define YELLOW 5 // Banana
-#define ORANGE 6 // Tangerine
-#define CYAN 7 // Peacock
-#define GRAY 8 // Graphite
-#define BLUE 9 // Blueberry
-#define GREEN 10 // Basil
-#define RED 11 // Tomato
-
 // GLOBALS // *************************************************************************************************************************
 
 //Connection Settings
