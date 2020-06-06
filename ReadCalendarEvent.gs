@@ -38,6 +38,9 @@ function GetEvents(){
   var return_val = "";
   for (var i = 0; i < eventsNow.length; i++){
     return_val += eventsNow[i].getColor() + ','; // List colours numbers of all current ongoing events. We'll determine what this means on the microcontroller itself.
+    if (eventsNow[i].getColor()=="") { // No colour is assigned, and we need to assign a default one or it will be missed
+      return_val += '11,'; // Red - Our default calendar event colour
+    }
   }
   
   var earliestFreeTime = now; // Earliest time the schedule could be free is right now
@@ -46,7 +49,7 @@ function GetEvents(){
     var startTime = eventsLater[i].getStartTime();
     var endTime = eventsLater[i].getEndTime();
     if (!eventsLater[i].isAllDayEvent()){ // Ignore all-day events
-      if ( (startTime < earliestFreeTime) && (endTime > earliestFreeTime)){ // Getting the next free time slot for display on the seven segment display
+      if ( (startTime < new Date(earliestFreeTime.getTime() + 60000 /*Plus one minute*/)) && (endTime > earliestFreeTime)){ // Getting the next free time slot for display on the seven segment display
         earliestFreeTime = endTime;
       }
       if ( (startTime < phoneHomeTime) && (startTime > now)){ // Case where there is another event starting before we would normally phone home
